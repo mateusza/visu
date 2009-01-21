@@ -87,3 +87,59 @@ char nucleotides_joined( n1, n2, nn )
   }
 
 }
+
+unsigned int parse_nucleotides( n1, n2, nucleo )
+  const unsigned int n1, n2;
+  const unsigned int *const nucleo;
+{
+  unsigned int j1,j2,j1b,j2b;
+
+  j1=n1;
+  j2=n2;
+
+  while( j1<=j2 ){
+    if ( nucleotides_joined( j1, j2, nucleo )){
+      j1b=j1; j2b=j2;
+      #ifdef DEBUG
+      printf( "starting STEM or END at (%d,%d)\n", j1b, j2b );
+      #endif
+      do {
+        j1++;
+        j2--;
+      } while( nucleotides_joined( j1, j2, nucleo ));
+      if ( j1b == j2+1 && j2b == j1-1 ){
+        #ifdef DEBUG
+        printf( "found END at (%d,%d)\n", j1b, j2b );
+        #endif
+      } else {
+        #ifdef DEBUG
+        printf( "found STEM at (%d,%d)--(%d,%d)\n", j1b, j2b, j1-1, j2+1 );
+        #endif
+      }
+      continue;
+    }  // if joined
+    if ( nucleo[j1] == 0 && nucleo[j2] == 0 ){
+      j1b=j1; j2b=j2;
+      #ifdef DEBUG
+      printf( "starting INTERIOR at (%d,%d)\n",  j1b, j2b );
+      #endif
+      do {
+        j1++;
+      } while ( nucleo[j1] == 0 );
+      do {
+        j2--;
+      } while ( nucleo[j2] == 0 );
+      #ifdef DEBUG
+      printf( "ending INTERIOR at (%d,%d)\n", j1-1, j2+1 );
+      #endif
+      continue;
+    } // both empty
+    if ( nucleo[j1] == 0 ){ //leftside bulge or multiconn
+      
+
+    } else if ( nucleo[j2] == 0 ){ //rightside bulge or multiconn
+
+    }
+  }
+  return 0;
+}

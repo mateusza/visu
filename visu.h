@@ -28,4 +28,6 @@ struct connpair ** construct_connpair_array( const unsigned int );
 
 char nucleotides_joined( const unsigned int, const unsigned int, const unsigned int const* );
 
+unsigned int parse_nucleotides( const unsigned int, const unsigned int, const unsigned int *const );
+
 #endif
