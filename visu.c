@@ -97,7 +97,7 @@ unsigned int parse_nucleotides( n1, n2, nn )
 	const unsigned int n1, n2;
 	const unsigned int *const nn;
 {
-	unsigned int j1,j2,j1b,j2b;
+	unsigned int j1,j2,j1b,j2b,j1bb,j2bb;
 
 	j1=n1;
 	j2=n2;
@@ -123,28 +123,57 @@ unsigned int parse_nucleotides( n1, n2, nn )
 			}
 			continue;
 		}	// if joined
-		if ( nn[j1] == 0 && nn[j2] == 0 ){
+		if ( nn[j1] == 0 || nn[j2] == 0 ){
 			j1b=j1; j2b=j2;
-			#ifdef DEBUG
-			printf( "starting INTERIOR at (%d,%d)\n",	j1b, j2b );
-			#endif
+			unsigned int jt;
+			unsigned int co=0, disco=0;
+			jt=j1;
 			do {
-				j1++;
-			} while ( nn[j1] == 0 );
-			do {
-				j2--;
-			} while ( nn[j2] == 0 );
-			#ifdef DEBUG
-			printf( "ending INTERIOR at (%d,%d)\n", j1-1, j2+1 );
-			#endif
-			continue;
-		} // both empty
-		if ( nn[j1] == 0 ){ //leftside bulge or multiconn
-			
+				if ( nn[jt] != 0 ){
+					j1=jt;
+					j2=nn[jt];
+					co++;
+					jt = j2+1;
+					#ifdef DEBUG
+						printf("found fork no %d at (%d,%d)\n", co, j1, j2 );
+					#endif
+				}
+				if ( nn[jt] == 0 ){
+					j1bb=jt;
+					while( nn[jt] == 0 ){
+						jt++;
+					}
+					disco++;
+					#ifdef DEBUG
+						printf("found empty segment no %d at (%d,%d)\n", disco, j1bb, jt-1 );
+					#endif
+				}		
+			} while( jt <= j2b );	
 
-		} else if ( nn[j2] == 0 ){ //rightside bulge or multiconn
+			printf("parsing openspace resulted in %d forks and %d empty segments\n", co, disco );
+			if ( co == 0 && disco == 1 ){
+			  #ifdef DEBUG
+					printf("found HAIRPIN at (%d,%d)\n", j1bb, jt-1 );
+					return 0;
+				#endif
+			} // if hairpin
+			if ( co == 1 && disco == 1 ){
+				#ifdef DEBUG
+          if ( j1 == j1b ){
+						printf("found BUGDE at (%d,%d)\n", j2+1,jt-1 );
+					}
+					if ( j2 == j2b ){
+						printf("found BUDGE at (%d,%d)\n", j1b, j1-1 );
+					}
+				#endif
+			} // if budge
+			if ( co == 1 && disco == 2 ){
+				#ifdef DEBUG
+					printf("found INTERIOR-LOOP at (%d,%d)--(%d,%d)\n", j1b, j2b, j1-1, j2+1 );
+				#endif
+			}
 
-		}
+		} // if one is disconnected
 	}
 	return 0;
 }
